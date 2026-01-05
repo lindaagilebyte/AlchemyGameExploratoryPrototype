@@ -26,7 +26,15 @@ public class WorldSimAuthority : MonoBehaviour
     public int InGameDay { get; private set; }
     public int InGameHour { get; private set; }
     public int InGameMinute { get; private set; }
+    public event System.Action<int, int> OnHourChanged;
 
+
+    [Header("Clock Events (test)")]
+
+
+    private int lastNotifiedDay = -1;
+    private int lastNotifiedHour = -1;
+    private bool hourEventInitialized = false;
 
     private void Awake()
     {
@@ -53,6 +61,8 @@ public class WorldSimAuthority : MonoBehaviour
 
         worldTimeSeconds += (double)(Time.deltaTime * timeScale);
         UpdateInGameClock();
+        EmitHourChangedIfNeeded();
+
     }
 
     private bool ShouldAdvanceTime()
@@ -88,5 +98,28 @@ public class WorldSimAuthority : MonoBehaviour
         InGameMinute = minutesIntoDay % 60;
         // Debug.Log($"Clock: Day {InGameDay}, {InGameHour:D2}:{InGameMinute:D2}", this);
     }
+    private void EmitHourChangedIfNeeded()
+    {
+        // First evaluation: initialize baseline, do NOT emit
+        if (!hourEventInitialized)
+        {
+            lastNotifiedDay = InGameDay;
+            lastNotifiedHour = InGameHour;
+            hourEventInitialized = true;
+            return;
+        }
+
+        // No change → no event
+        if (InGameDay == lastNotifiedDay && InGameHour == lastNotifiedHour)
+            return;
+
+        // Real transition → emit
+        lastNotifiedDay = InGameDay;
+        lastNotifiedHour = InGameHour;
+
+        OnHourChanged?.Invoke(InGameDay, InGameHour);
+    }
+
+
 
 }
