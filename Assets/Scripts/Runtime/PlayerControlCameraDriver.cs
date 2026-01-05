@@ -33,19 +33,13 @@ public class PlayerControlCameraDriver : MonoBehaviour
             enabled = false;
             return;
         }
-
-        // TEMPORARY: Exploration is the only approved state
-        if (playerControlAuthority.CurrentState == "Exploration")
-        {
-            SnapToExplorationAnchor();
-        }
     }
 
-    private void SnapToExplorationAnchor()
+    private void LateUpdate()
     {
-        targetCamera.transform.SetPositionAndRotation(
-            cameraAnchorExploration.position,
-            cameraAnchorExploration.rotation
-        );
+        if (playerControlAuthority.CurrentState != "Exploration")
+            return;
+
+        targetCamera.transform.position = cameraAnchorExploration.position;
     }
 }
