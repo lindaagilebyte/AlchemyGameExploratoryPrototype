@@ -21,8 +21,6 @@ public class DayNightLightDriver : MonoBehaviour
     [SerializeField] private float nightIntensity = 0.05f;   // 21–07
 
 
-    private bool initialized = false;
-
     private void Awake()
     {
         if (worldSim == null)
@@ -45,8 +43,7 @@ public class DayNightLightDriver : MonoBehaviour
         worldSim.OnHourChanged += HandleHourChanged;
 
         // Initialize once from current clock (no “event” semantics).
-        ApplyFromClock(worldSim.InGameHour);
-        initialized = true;
+        ApplyFromClock(worldSim.InGameHour, worldSim.CurrentTimeBand);
     }
 
     private void OnDisable()
@@ -57,11 +54,11 @@ public class DayNightLightDriver : MonoBehaviour
 
     private void HandleHourChanged(int day, int hour)
     {
-        // No special casing needed; this is presentation-only.
-        ApplyFromClock(hour);
+        ApplyFromClock(hour, worldSim.CurrentTimeBand);
     }
 
-    private void ApplyFromClock(int hour)
+
+    private void ApplyFromClock(int hour, WorldSimAuthority.TimeBand band)
     {
         if (setRotation)
         {
@@ -74,19 +71,14 @@ public class DayNightLightDriver : MonoBehaviour
         }
         if (setIntensity)
         {
-            sunLight.intensity = GetBandIntensity(hour);
+            sunLight.intensity = band switch
+            {
+                WorldSimAuthority.TimeBand.Day => dayIntensity,
+                WorldSimAuthority.TimeBand.Evening => eveningIntensity,
+                _ => nightIntensity
+            };
         }
 
-    }
-    private float GetBandIntensity(int hour)
-    {
-        if (hour >= 7 && hour < 18)
-            return dayIntensity;
-
-        if (hour >= 18 && hour < 21)
-            return eveningIntensity;
-
-        return nightIntensity; // 21–07
     }
 
 }
