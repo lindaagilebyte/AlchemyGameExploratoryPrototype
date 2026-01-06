@@ -29,9 +29,6 @@ public class WorldSimAuthority : MonoBehaviour
     public event System.Action<int, int> OnHourChanged;
 
 
-    [Header("Clock Events (test)")]
-
-
     private int lastNotifiedDay = -1;
     private int lastNotifiedHour = -1;
     private bool hourEventInitialized = false;
