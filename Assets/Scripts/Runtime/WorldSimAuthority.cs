@@ -27,6 +27,16 @@ public class WorldSimAuthority : MonoBehaviour
     public int InGameHour { get; private set; }
     public int InGameMinute { get; private set; }
     public event System.Action<int, int> OnHourChanged;
+    public enum TimeBand
+    {
+        Day,
+        Evening,
+        Night
+    }
+
+    [SerializeField] private TimeBand currentTimeBand;
+    public TimeBand CurrentTimeBand => currentTimeBand;
+
 
 
     private int lastNotifiedDay = -1;
@@ -58,6 +68,7 @@ public class WorldSimAuthority : MonoBehaviour
 
         worldTimeSeconds += (double)(Time.deltaTime * timeScale);
         UpdateInGameClock();
+        UpdateTimeBand();        
         EmitHourChangedIfNeeded();
 
     }
@@ -94,6 +105,22 @@ public class WorldSimAuthority : MonoBehaviour
         InGameHour = minutesIntoDay / 60;
         InGameMinute = minutesIntoDay % 60;
         // Debug.Log($"Clock: Day {InGameDay}, {InGameHour:D2}:{InGameMinute:D2}", this);
+    }
+    private void UpdateTimeBand()
+    {
+        if (InGameHour >= 7 && InGameHour < 18)
+        {
+            currentTimeBand = TimeBand.Day;
+            return;
+        }
+
+        if (InGameHour >= 18 && InGameHour < 21)
+        {
+            currentTimeBand = TimeBand.Evening;
+            return;
+        }
+
+        currentTimeBand = TimeBand.Night; // 21–07
     }
     private void EmitHourChangedIfNeeded()
     {

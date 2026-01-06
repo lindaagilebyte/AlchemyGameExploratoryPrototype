@@ -15,9 +15,11 @@ public class DayNightLightDriver : MonoBehaviour
     [SerializeField] private float midnightElevationDeg = -30f;
     [SerializeField] private float fixedYawDeg = 20f; // pick any stable yaw
 
-    [Header("Intensity (simple)")]
-    [SerializeField] private float nightIntensity = 0.05f;
-    [SerializeField] private float dayIntensity = 1.0f;
+    [Header("Band Profiles (Intensity)")]
+    [SerializeField] private float dayIntensity = 1.0f;      // 07–18
+    [SerializeField] private float eveningIntensity = 0.5f;  // 18–21
+    [SerializeField] private float nightIntensity = 0.05f;   // 21–07
+
 
     private bool initialized = false;
 
@@ -70,12 +72,21 @@ public class DayNightLightDriver : MonoBehaviour
 
             sunLight.transform.rotation = Quaternion.Euler(elevation, fixedYawDeg, 0f);
         }
-
         if (setIntensity)
         {
-            // Very simple: day between 7-18, else night (adjust later)
-            bool isDay = (hour >= 7 && hour < 18);
-            sunLight.intensity = isDay ? dayIntensity : nightIntensity;
+            sunLight.intensity = GetBandIntensity(hour);
         }
+
     }
+    private float GetBandIntensity(int hour)
+    {
+        if (hour >= 7 && hour < 18)
+            return dayIntensity;
+
+        if (hour >= 18 && hour < 21)
+            return eveningIntensity;
+
+        return nightIntensity; // 21–07
+    }
+
 }
